@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const os = require('os');
 const Vorpal = require('vorpal');
 
@@ -23,7 +22,9 @@ const app = {
   _fatal: false,
 
   export(str, cbk) {
-    cbk = cbk || function () {};
+    // Is this a tagged template literal?
+    const tmpl = Array.isArray(str) && Array.isArray(str.raw);
+    cbk = tmpl && cbk || function () {};
     const options = {
       fatal: app._fatal || false
     };
@@ -35,7 +36,24 @@ const app = {
       out += `${str}\n`;
       return '';
     });
-    app.vorpal.execSync(str, options);
+    let commands;
+    if (tmpl) {
+      // Render into a single string, inserting interpolated values.
+      const interpVals = [...arguments].slice(1);
+      let interpStr = str[0];
+      for (let i = 0, l = interpVals.length; i < l; i++) {
+        interpStr += `${interpVals[i]}${str[i + 1]}`;
+      }
+      // Split into lines.  Remove blank lines and comments (start with #)
+      commands = interpStr.split(/\r\n|\r|\n/).filter(command => {
+        return !(/^\s*(?:#|$)/.test(command));
+      });
+    } else {
+      commands = [str];
+    }
+    commands.forEach(command => {
+      app.vorpal.execSync(command, options);
+    });
     unhook();
     return String(out).replace(/\n$/, '');
   },
@@ -164,7 +182,7 @@ const app = {
     }
 
     app.export.vorpal = app.vorpal;
-    _.extend(app.export, cmds);
+    Object.assign(app.export, cmds);
     return this;
   }
 };

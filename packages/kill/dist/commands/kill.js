@@ -1,10 +1,10 @@
 'use strict';
 
-var _ = require('lodash');
 var fkill = require('fkill');
 var os = require('os');
 
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 
 var usage = 'kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]';
 var windows = os.platform().indexOf('win') > -1;
@@ -24,7 +24,7 @@ var kill = {
     var procs = args;
     procs = procs === undefined ? [] : procs;
     procs = typeof procs === 'string' ? String(procs).split(' ') : procs;
-    procs = _.filter(procs, function (arg) {
+    procs = procs.filter(function (arg) {
       return String(arg).trim() !== '';
     });
 
@@ -84,7 +84,7 @@ module.exports = function (vorpal) {
     return kill;
   }
   vorpal.api.kill = kill;
-  vorpal.command('kill [process...]').option('-9', 'sigkill').option('-s [sig]', 'sig is a signal name').option('-n [sig]', 'sig is a signal number').option('-l [sigspec]', 'list the signal names').action(function (args, callback) {
+  vorpal.command('kill [process...]').parse(preparser).option('-9', 'sigkill').option('-s [sig]', 'sig is a signal name').option('-n [sig]', 'sig is a signal number').option('-l [sigspec]', 'list the signal names').action(function (args, callback) {
     args.options = args.options || {};
     args.options.vorpal = vorpal;
     return interfacer.call(this, {

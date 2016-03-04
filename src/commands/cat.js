@@ -1,10 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
 const fsAutocomplete = require('vorpal-autocomplete-fs');
 
 const fetch = require('./../util/fetch');
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 const lpad = require('./../util/lpad');
 const strip = require('./../util/stripAnsi');
 
@@ -18,11 +18,11 @@ const cat = {
       args = {
         files: []
       };
-    } else if (_.isString(args)) {
+    } else if (typeof args === 'string' || args instanceof String) {
       args = {
         files: [args]
       };
-    } else if (_.isArray(args)) {
+    } else if (Array.isArray(args)) {
       args = {
         files: args
       };
@@ -111,6 +111,7 @@ module.exports = function (vorpal) {
   vorpal.api.cat = cat;
   vorpal
     .command('cat [files...]')
+    .parse(preparser)
     .option('-A, --show-all', 'equivalent to -vET')
     .option('-b, --number-nonblank', 'number nonempty output lines, overrides -n')
     .option('-e', 'equivalent to -vE')

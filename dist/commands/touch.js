@@ -1,10 +1,10 @@
 'use strict';
 
-var _ = require('lodash');
 var fs = require('fs-extra');
 var fsAutocomplete = require('vorpal-autocomplete-fs');
 
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 require('./../lib/sugar');
 
 var touch = {
@@ -20,7 +20,7 @@ var touch = {
   exec: function exec(files, options) {
     var self = this;
     files = files || ['.'];
-    files = !_.isArray(files) ? [files] : files;
+    files = !Array.isArray(files) ? [files] : files;
     options = options || {};
 
     // If any version of --no-create is passed, change it to false.
@@ -66,6 +66,7 @@ var touch = {
     }
   },
 
+
   /**
    * Returns touch stderr and response codes
    * for errors.
@@ -79,6 +80,7 @@ var touch = {
     this.log(e.message);
     return 2;
   },
+
 
   /**
    * Handler for a single file using touch.
@@ -140,7 +142,7 @@ module.exports = function (vorpal) {
     return touch;
   }
   vorpal.api.touch = touch;
-  vorpal.command('touch <files...>').option('-a', 'change only the access time').option('-c, --no-create', 'do not create any files').option('-d, --date [STRING]', 'parse STRING and use it instead of current time').option('-m', 'change only the modification time').option('-r, --reference [FILE]', 'use this file\'s times instead of current time').option('--time [WORD]', 'change the specified time: WORD is access, atime, or use: equivalent to -a WORD is modify or mtime: equivalent to -m').autocomplete(fsAutocomplete()).action(function (args, callback) {
+  vorpal.command('touch <files...>').parse(preparser).option('-a', 'change only the access time').option('-c, --no-create', 'do not create any files').option('-d, --date [STRING]', 'parse STRING and use it instead of current time').option('-m', 'change only the modification time').option('-r, --reference [FILE]', 'use this file\'s times instead of current time').option('--time [WORD]', 'change the specified time: WORD is access, atime, or use: equivalent to -a WORD is modify or mtime: equivalent to -m').autocomplete(fsAutocomplete()).action(function (args, callback) {
     return interfacer.call(this, {
       command: touch,
       args: args.files || [],

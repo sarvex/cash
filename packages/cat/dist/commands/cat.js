@@ -1,10 +1,10 @@
 'use strict';
 
-var _ = require('lodash');
 var fsAutocomplete = require('vorpal-autocomplete-fs');
 
 var fetch = require('./../util/fetch');
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 var lpad = require('./../util/lpad');
 var strip = require('./../util/stripAnsi');
 
@@ -17,11 +17,11 @@ var cat = {
       args = {
         files: []
       };
-    } else if (_.isString(args)) {
+    } else if (typeof args === 'string' || args instanceof String) {
       args = {
         files: [args]
       };
-    } else if (_.isArray(args)) {
+    } else if (Array.isArray(args)) {
       args = {
         files: args
       };
@@ -103,7 +103,7 @@ module.exports = function (vorpal) {
     return cat;
   }
   vorpal.api.cat = cat;
-  vorpal.command('cat [files...]').option('-A, --show-all', 'equivalent to -vET').option('-b, --number-nonblank', 'number nonempty output lines, overrides -n').option('-e', 'equivalent to -vE').option('-E, --show-ends', 'display $ at end of each line').option('-n, --number', 'number all output lines').option('-s, --squeeze-blank', 'suppress repeated empty output lines').option('-t', 'equivalent to -vT').option('-T, --show-tabs', 'display TAB characters as ^I').option('-v, --show-nonprinting', 'use ^ and M- notation, except for LFD and TAB') // this doesn't work yet...
+  vorpal.command('cat [files...]').parse(preparser).option('-A, --show-all', 'equivalent to -vET').option('-b, --number-nonblank', 'number nonempty output lines, overrides -n').option('-e', 'equivalent to -vE').option('-E, --show-ends', 'display $ at end of each line').option('-n, --number', 'number all output lines').option('-s, --squeeze-blank', 'suppress repeated empty output lines').option('-t', 'equivalent to -vT').option('-T, --show-tabs', 'display TAB characters as ^I').option('-v, --show-nonprinting', 'use ^ and M- notation, except for LFD and TAB') // this doesn't work yet...
   .autocomplete(fsAutocomplete()).action(function (args, cb) {
     args.options = args.options || {};
     return interfacer.call(this, {

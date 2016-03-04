@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var fs = require('fs');
 var fsAutocomplete = require('vorpal-autocomplete-fs');
 var path = require('path');
@@ -8,6 +7,7 @@ var os = require('os');
 
 var expand = require('./../util/expand');
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 
 var cp = {
   exec: function exec(args, options) {
@@ -15,8 +15,8 @@ var cp = {
     options = options || {};
 
     args = args === undefined ? [] : args;
-    args = _.isArray(args) ? args : args.split(' ');
-    args = _.filter(args, function (arg) {
+    args = Array.isArray(args) ? args : args.split(' ');
+    args = args.filter(function (arg) {
       return String(arg).trim() !== '';
     });
 
@@ -195,7 +195,7 @@ module.exports = function (vorpal) {
     return cp;
   }
   vorpal.api.cp = cp;
-  vorpal.command('cp [args...]').option('-f, --force', 'do not prompt before overwriting').option('-n, --no-clobber', 'do not overwrite an existing file').option('-r, --recursive', 'copy directories recursively').option('-R', 'copy directories recursively').autocomplete(fsAutocomplete()).action(function (args, callback) {
+  vorpal.command('cp [args...]').parse(preparser).option('-f, --force', 'do not prompt before overwriting').option('-n, --no-clobber', 'do not overwrite an existing file').option('-r, --recursive', 'copy directories recursively').option('-R', 'copy directories recursively').autocomplete(fsAutocomplete()).action(function (args, callback) {
     args.options = args.options || {};
     return interfacer.call(this, {
       command: cp,

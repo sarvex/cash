@@ -1,8 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
-
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 
 var unalias = {
   exec: function exec(args, options) {
@@ -19,7 +18,7 @@ var unalias = {
 
     vorpal._aliases = vorpal._aliases || [];
 
-    if (_.isString(args)) {
+    if (typeof args === 'string' || args instanceof String) {
       args = String(args).split(' ');
       args = args.filter(function (str) {
         return String(str).trim() !== '';
@@ -87,7 +86,7 @@ module.exports = function (vorpal) {
     return unalias;
   }
   vorpal.api.unalias = unalias;
-  vorpal.command('unalias [name...]').option('-a', 'remove all alias definitions').action(function (args, callback) {
+  vorpal.command('unalias [name...]').parse(preparser).option('-a', 'remove all alias definitions').action(function (args, callback) {
     args.options = args.options || {};
     args.options.vorpal = vorpal;
     return interfacer.call(this, {

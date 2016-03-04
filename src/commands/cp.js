@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const fsAutocomplete = require('vorpal-autocomplete-fs');
 const path = require('path');
@@ -8,6 +7,7 @@ const os = require('os');
 
 const expand = require('./../util/expand');
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 
 const cp = {
 
@@ -16,8 +16,8 @@ const cp = {
     options = options || {};
 
     args = (args === undefined) ? [] : args;
-    args = (_.isArray(args)) ? args : args.split(' ');
-    args = _.filter(args, arg => String(arg).trim() !== '');
+    args = (Array.isArray(args)) ? args : args.split(' ');
+    args = args.filter(arg => String(arg).trim() !== '');
 
     options.noclobber = (options.force === true) ? false : options.noclobber;
     options.recursive = (options.R === true) ? true : options.recursive;
@@ -196,6 +196,7 @@ module.exports = function (vorpal) {
   vorpal.api.cp = cp;
   vorpal
     .command('cp [args...]')
+    .parse(preparser)
     .option('-f, --force', 'do not prompt before overwriting')
     .option('-n, --no-clobber', 'do not overwrite an existing file')
     .option('-r, --recursive', 'copy directories recursively')

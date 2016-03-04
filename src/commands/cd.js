@@ -4,6 +4,7 @@ const fsAutocomplete = require('vorpal-autocomplete-fs');
 const delimiter = require('./../delimiter');
 
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 
 const cd = {
 
@@ -13,6 +14,10 @@ const cd = {
     options = options || {};
 
     dir = (!dir) ? delimiter.getHomeDir() : dir;
+
+    // Allow Windows drive letter changes
+    dir = (dir && dir.length === 2 && dir[1] === '/') ? `${dir[0]}:` : dir;
+
     try {
       process.chdir(dir);
       if (vpl) {
@@ -46,6 +51,7 @@ module.exports = function (vorpal) {
   vorpal.api.cd = cd;
   vorpal
     .command('cd [dir]')
+    .parse(preparser)
     .autocomplete(fsAutocomplete({directory: true}))
     .action(function (args, callback) {
       args.options = args.options || {};

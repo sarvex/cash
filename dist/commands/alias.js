@@ -1,8 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
-
 var interfacer = require('./../util/interfacer');
+var preparser = require('./../preparser');
 
 var alias = {
   exec: function exec(args, options) {
@@ -20,7 +19,7 @@ var alias = {
       options.p = true;
     }
 
-    if (_.isString(args)) {
+    if (typeof args === 'string' || args instanceof String) {
       args = [args];
     }
 
@@ -63,8 +62,8 @@ var alias = {
     } else {
       if (value) {
         vorpal.localStorage.setItem('alias|' + key, value);
-        _.remove(all, function (val) {
-          return val === key;
+        all = all.filter(function (val) {
+          return val !== key;
         });
         all.push(key);
       } else {
@@ -96,7 +95,7 @@ module.exports = function (vorpal) {
     return alias;
   }
   vorpal.api.alias = alias;
-  vorpal.command('alias [name...]').option('-p', 'print all defined aliases in a reusable format').action(function (args, callback) {
+  vorpal.command('alias [name...]').parse(preparser).option('-p', 'print all defined aliases in a reusable format').action(function (args, callback) {
     args.options = args.options || {};
     args.options.vorpal = vorpal;
     return interfacer.call(this, {

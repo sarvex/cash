@@ -1,11 +1,11 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const fsAutocomplete = require('vorpal-autocomplete-fs');
 
 const fetch = require('./../util/fetch');
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 const strip = require('./../util/stripAnsi');
 const shuffle = require('array-shuffle');
 
@@ -48,11 +48,11 @@ const sort = {
       args = {
         files: []
       };
-    } else if (_.isString(args)) {
+    } else if (typeof args === 'string' || args instanceof String) {
       args = {
         files: [args]
       };
-    } else if (_.isArray(args)) {
+    } else if (Array.isArray(args)) {
       args = {
         files: args
       };
@@ -247,6 +247,7 @@ module.exports = function (vorpal) {
   vorpal.api.sort = sort;
   vorpal
     .command('sort [files...]')
+    .parse(preparser)
     .option('-M, --month-sort', 'compare (unknown) < \'JAN\' < ... < \'DEC\'')
     .option('-h, --human-numeric-sort', 'compare human readable numbers (e.g., 2K 1G)')
     .option('-n, --numeric-sort', 'compare according to string numerical value')

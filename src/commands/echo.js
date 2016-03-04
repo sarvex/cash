@@ -1,8 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
-
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 
 const echo = {
 
@@ -12,7 +11,7 @@ const echo = {
 
     try {
       let text = arg || '';
-      text = !_.isArray(text) ? [text] : text;
+      text = !Array.isArray(text) ? [text] : text;
       let result = text.join(' ');
       let out = '';
       if (options.e && !options.E) {
@@ -70,6 +69,7 @@ module.exports = function (vorpal) {
   vorpal.api.echo = echo;
   vorpal
     .command('echo [arg...]')
+    .parse(preparser)
     .option('-e', 'enable interpretation of the following backslash escapes')
     .option('-E', 'explicitly suppress interpretation of backslash escapes')
     .action(function (args, callback) {

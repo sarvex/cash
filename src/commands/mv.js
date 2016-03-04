@@ -1,12 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const fsAutocomplete = require('vorpal-autocomplete-fs');
 const path = require('path');
 
 const expand = require('./../util/expand');
 const interfacer = require('./../util/interfacer');
+const preparser = require('./../preparser');
 
 const mv = {
 
@@ -15,8 +15,8 @@ const mv = {
     options = options || {};
 
     args = (args === undefined) ? [] : args;
-    args = (_.isArray(args)) ? args : args.split(' ');
-    args = _.filter(args, arg => String(arg).trim() !== '');
+    args = (Array.isArray(args)) ? args : args.split(' ');
+    args = args.filter(arg => String(arg).trim() !== '');
 
     options.noclobber = (options.force === true) ? false : options.noclobber;
 
@@ -91,6 +91,7 @@ module.exports = function (vorpal) {
   vorpal.api.mv = mv;
   vorpal
     .command('mv [args...]')
+    .parse(preparser)
     .option('-f, --force', 'do not prompt before overwriting')
     .option('-n, --no-clobber', 'do not overwrite an existing file')
     .option('--striptrailingslashes', 'remove any trailing slashes from each source') // vorpal bug, need to add dashes between words
